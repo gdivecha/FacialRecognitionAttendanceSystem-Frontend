@@ -5,6 +5,14 @@ import { Box, CssBaseline, Toolbar, Typography, IconButton } from '@mui/material
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import MenuIcon from '@mui/icons-material/Menu';
 import Sidebar from '../../components/Sidebar';
+import { Pages } from '../../configurations/HomeConfigs';
+import Students from './students/Students';
+import Records from './records/Records';
+import Attendance from './attendance/Attendance';
+
+interface HomeProps {
+    page: Pages;
+}
 
 const drawerWidth = 240;
 
@@ -48,7 +56,8 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-export default function Home() {
+
+export default function Home(props: HomeProps) {
   const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
@@ -58,6 +67,10 @@ export default function Home() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+    function logPageName() {
+        console.log(props.page);
+    }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -81,12 +94,13 @@ export default function Home() {
       <Sidebar open={open} handleDrawerClose={handleDrawerClose} />
       <Main open={open}>
         <Toolbar />
-        <Typography >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla facilisi etiam dignissim diam...
-        </Typography>
+        {props.page === Pages.STUDENTS ? <Students />
+            : props.page === Pages.RECORDS ? <Records /> 
+            : <Attendance /> 
+        }
+        {/* {props.page === Pages.STUDENTS && <Students />}
+        {props.page === Pages.RECORDS && <Records />}
+        {props.page === Pages.ATTENDANCE && <Attendance />} */}
       </Main>
     </Box>
   );

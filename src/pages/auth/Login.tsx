@@ -91,7 +91,7 @@ function Login() {
                 </Alert>
             }
         </Container>
-    ) : <Navigate to={'/home'}></Navigate>
+    ) : <Navigate to={'/students'}></Navigate>
   );
 }
 

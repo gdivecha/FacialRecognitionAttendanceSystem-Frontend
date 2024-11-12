@@ -1,19 +1,16 @@
 // Sidebar.tsx
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Drawer, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton } from '@mui/material';
 import { useTheme, styled } from '@mui/material/styles';
 import { AuthContext } from '../firebase/context/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase/firebaseSetup';
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
-  PermContactCalendar as PermContactCalendarIcon,
-  Book as BookIcon,
-  AssignmentTurnedIn as AssignmentTurnedInIcon,
-  AccountBox as AccountBoxIcon,
-  Logout as LogoutIcon
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
+import { tabToIconMap } from '../configurations/SidebarConfigs';
 
 const drawerWidth = 240;
 
@@ -25,17 +22,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const tabToIconMap = [
-  { tabName: 'Students', icon: <PermContactCalendarIcon /> },
-  { tabName: 'Records', icon: <BookIcon /> },
-  { tabName: 'Attendance', icon: <AssignmentTurnedInIcon /> },
-  { tabName: 'Account Settings', icon: <AccountBoxIcon /> },
-  { tabName: 'Sign Out', icon: <LogoutIcon /> }
-];
-
 const Sidebar = ({ open, handleDrawerClose }: { open: boolean; handleDrawerClose: () => void }) => {
   const theme = useTheme();
   const user = useContext(AuthContext);
+  const navigate = useNavigate()
+  const location = useLocation();
 
   const signOut = async () => {
     await auth.signOut();
@@ -43,17 +34,17 @@ const Sidebar = ({ open, handleDrawerClose }: { open: boolean; handleDrawerClose
 
   return (
     <Drawer
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-        },
-      }}
-      variant="persistent"
-      anchor="left"
-      open={open}
+        sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
     >
       <DrawerHeader>
         <IconButton onClick={handleDrawerClose}>
@@ -62,9 +53,12 @@ const Sidebar = ({ open, handleDrawerClose }: { open: boolean; handleDrawerClose
       </DrawerHeader>
       <Divider />
       <List>
-        {tabToIconMap.slice(0, 4).map((item) => (
+        {tabToIconMap.map((item) => (
           <ListItem key={item.tabName} disablePadding>
-            <ListItemButton>
+            <ListItemButton
+                onClick={() => navigate(item.pageExtension)}
+                selected={location.pathname === item.pageExtension} // Highlight if current path matches
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.tabName} />
             </ListItemButton>
@@ -74,10 +68,10 @@ const Sidebar = ({ open, handleDrawerClose }: { open: boolean; handleDrawerClose
       <Divider />
       <List>
         {user ? (
-          <ListItem key={tabToIconMap[4].tabName} disablePadding>
+          <ListItem key={'Sign Out'} disablePadding>
             <ListItemButton onClick={signOut}>
-              <ListItemIcon>{tabToIconMap[4].icon}</ListItemIcon>
-              <ListItemText primary={tabToIconMap[4].tabName} />
+              <ListItemIcon>{<LogoutIcon/>}</ListItemIcon>
+              <ListItemText primary={'Sign Out'} />
             </ListItemButton>
           </ListItem>
         ) : (
