@@ -1,5 +1,12 @@
 import { useContext, useState } from "react";
-import { Button, Container, Form, Navbar } from "react-bootstrap";
+import {
+    TextField,
+    Button,
+    Container,
+    Typography,
+    Box,
+    Alert,
+} from '@mui/material';
 import { AuthContext } from "../../firebase/context/AuthContext";
 import { auth } from "../../firebase/firebaseSetup";
 import {
@@ -12,6 +19,7 @@ function Login() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [userNotFoundAlert, setUserNotFoundAlert] = useState(false);
 
   const signIn = async () => {
     try {
@@ -21,50 +29,69 @@ function Login() {
         password
       );
     } catch (error) {
+      setUserNotFoundAlert(true);
       console.error(error);
     }
   };
 
   return (
-    <>
-      <Navbar className="justify-content-between" bg="dark" variant="dark">
-        <Navbar.Brand>A.I.Tend</Navbar.Brand>
-      </Navbar>
-      {!user ? (
-        <Container style={{ maxWidth: "500px" }} fluid>
-          <Form className="mt-4">
-            <Form.Group controlId="formEmail">
-                <Form.Label>Email</Form.Label>
-                <input
+    !user ? (
+        <Container maxWidth="sm" style={{ marginTop: '2rem' }}>
+            <Box textAlign="center" mb={2}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Log In
+                </Typography>
+                <Typography variant="subtitle1" color="textSecondary">
+                    Log into an existing account
+                </Typography>
+            </Box>
+            <form>
+                <TextField
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
                     type="email"
                     autoComplete='email'
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value)}}
                     required
-                    value={email} onChange={(e) => { setEmail(e.target.value) }}
                 />
-            </Form.Group>
-            <Form.Group controlId="formPassword">
-                <Form.Label>Password</Form.Label>
-                <input
+                <TextField
+                    label="Password"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
                     type="password"
                     autoComplete='current-password'
                     required
-                    value={password} onChange={(e) => { setPassword(e.target.value) }}
+                    value={password} 
+                    onChange={(e) => { setPassword(e.target.value) }}
                 />
-            </Form.Group>
-            <Button
-                onClick={signIn}
-                type="button"
-                variant="secondary"
-            >
-                Sign In
-            </Button>
-            <p>Don't have an account? <Link to={'/register'}>Sign up</Link></p>
-          </Form>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    style={{ marginTop: '1rem' }}
+                    onClick={signIn}
+                    type="button"
+                >
+                    LOG IN
+                </Button>
+                <Box textAlign="center" mt={2}>
+                    Don't have an account? <Link to={'/register'}>Sign up</Link>
+                </Box>
+            </form>
+            {userNotFoundAlert && 
+                <Alert 
+                    severity="error"
+                    style={{ marginTop: '2rem' }}
+                >
+                    User cannot be logged in! Please make sure your account is registered
+                </Alert>
+            }
         </Container>
-      ) : (
-        <Navigate to={'/home'}></Navigate>
-      )}
-    </>
+    ) : <Navigate to={'/home'}></Navigate>
   );
 }
 
