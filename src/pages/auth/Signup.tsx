@@ -96,7 +96,7 @@ function Signup() {
                     onClick={createAccount}
                     type="button"
                 >
-                    LOG IN
+                    SIGN UP
                 </Button>
                 <Box textAlign="center" mt={2}>
                     Have an account already? <Link to={'/login'}>Log in</Link>
