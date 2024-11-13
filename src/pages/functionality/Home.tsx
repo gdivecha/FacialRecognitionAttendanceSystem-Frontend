@@ -1,5 +1,5 @@
 // Home.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, CssBaseline, Toolbar, Typography, IconButton } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
@@ -67,10 +67,6 @@ export default function Home(props: HomeProps) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
-    function logPageName() {
-        console.log(props.page);
-    }
 
   return (
     <Box sx={{ display: 'flex' }}>
