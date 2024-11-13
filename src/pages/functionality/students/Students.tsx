@@ -1,6 +1,6 @@
-import { DataGrid } from '@mui/x-data-grid';
-import { Box, Paper, Typography } from "@mui/material";
-import { columnMetadata, students } from '../../../configurations/StudentsConfigs';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { Box, Button, Paper, Typography } from "@mui/material";
+import { students } from '../../../configurations/StudentsConfigs';
 import Divider from '@mui/material/Divider';
 import AddStudentPopup from './AddStudentPopup';
 import { useState } from 'react';
@@ -20,8 +20,44 @@ function Students() {
 
     const [studentsConfigs, setStudentsConfigs] = useState(students);
 
+    const columnMetadata: GridColDef[] = [
+        { field: 'course', headerName: 'Course Code', width: 130},
+        { field: 'id', headerName: 'Student ID', width: 130 },
+        { field: 'firstName', headerName: 'First name', width: 150 },
+        { field: 'lastName', headerName: 'Last name', width: 150 },
+        { field: 'email', headerName: 'Email', width: 300 },
+        { 
+          field: 'photos', 
+          headerName: 'Photos', 
+          width: 100, 
+          renderCell: () => (
+              <Button variant="outlined" fullWidth>VIEW</Button>
+          ),
+        },
+        { 
+          field: 'actions', 
+          headerName: 'Actions', 
+          width: 100, 
+          renderCell: (params: GridRenderCellParams) => (
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => handleDelete(params.row.id)}
+            >
+              Delete
+            </Button>
+          ),
+        }
+    ];
+
     const handleAddStudent = (newStudent: Student) => {
         setStudentsConfigs((prevConfigs) => [...prevConfigs, newStudent]);
+    };
+    
+    const handleDelete = (id: string) => {
+        setStudentsConfigs((prevConfigs) =>
+          prevConfigs.filter((student) => student.id !== id)
+        );
     };
 
     return (
@@ -41,7 +77,6 @@ function Students() {
                 columns={columnMetadata}
                 initialState={{ pagination: { paginationModel } }}
                 pageSizeOptions={[5, 10, 20, 50]}
-                checkboxSelection
                 sx={{ border: 0 }}
             />
         </Paper>
