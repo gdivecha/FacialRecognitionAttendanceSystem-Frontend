@@ -25,15 +25,17 @@ function AddStudentPopup(props: AddStudentPopupProps) {
   };
 
   function addNewStudent() {
-    props.onAddStudent({
-      course: courseCode,
-      id: studentID,
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      // photos?: '',
-    });
-    setOpen(false);
+    if(courseCode && studentID && firstName && lastName && email) {
+      props.onAddStudent({
+        course: courseCode,
+        id: studentID,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        // photos?: '',
+      });
+      setOpen(false);
+    }
   }
 
   useEffect(() => {
@@ -130,7 +132,7 @@ function AddStudentPopup(props: AddStudentPopupProps) {
                   color="primary"
                   fullWidth
                   onClick={addNewStudent}
-                  type="button"
+                  type="submit"
               >
                   ADD STUDENT
               </Button>
