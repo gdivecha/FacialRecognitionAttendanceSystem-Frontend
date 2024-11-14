@@ -1,6 +1,6 @@
 import { useEffect, useState, SyntheticEvent, MouseEvent } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Box, Typography, IconButton, Grid, Card, CardMedia, CardContent, Snackbar, Alert, Tooltip } from '@mui/material';
+import { Box, Typography, IconButton, Grid, Card, CardMedia, Snackbar, Alert, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 interface UploadedFile {
@@ -10,9 +10,10 @@ interface UploadedFile {
 
 interface FileUploadProps {
   onFilesChange: (files: UploadedFile[]) => void;
+  resetDropzone: boolean; // New prop to reset the dropzone
 }
 
-function FileUpload({ onFilesChange }: FileUploadProps) {
+function FileUpload({ onFilesChange, resetDropzone }: FileUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [duplicateFileError, setDuplicateFileError] = useState(false);
 
@@ -52,9 +53,12 @@ function FileUpload({ onFilesChange }: FileUploadProps) {
     if (reason === 'clickaway') {
       return;
     }
-    event.stopPropagation();
     setDuplicateFileError(false);
   };
+
+  useEffect(() => {
+    setUploadedFiles([]);
+  }, [resetDropzone]);
 
   useEffect(() => {
     return () => {
@@ -92,22 +96,20 @@ function FileUpload({ onFilesChange }: FileUploadProps) {
                   objectFit: 'contain',
                 }}
               />
-              <CardContent sx={{ paddingBottom: '8px' }}>
-                <Tooltip title={file.name} arrow>
-                  <Typography 
-                    variant="body2" 
-                    noWrap 
-                    sx={{
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      maxWidth: '100%',
-                    }}
-                  >
-                    {file.name}
-                  </Typography>
-                </Tooltip>
-              </CardContent>
+              <Tooltip title={file.name} arrow>
+                <Typography 
+                  variant="body2" 
+                  noWrap 
+                  sx={{
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '100%',
+                  }}
+                >
+                  {file.name}
+                </Typography>
+              </Tooltip>
               <IconButton
                 onClick={(event) => handleDelete(file.name, event)}
                 sx={{
