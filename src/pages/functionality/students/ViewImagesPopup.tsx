@@ -42,6 +42,7 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
   const handleUpload = () => {
     setSubmittedFiles((prev) => [...prev, ...uploadedFiles]);
     setUploadedFiles([]);
+    setUploadPhotos(false);
     setResetDropzone((prev) => !prev);
   };
 
@@ -189,7 +190,7 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
                   startIcon={<CloudUploadIcon />}
                   fullWidth
                 >
-                  Upload
+                  Upload Face Images
                 </Button>
               )}
             </Box>
