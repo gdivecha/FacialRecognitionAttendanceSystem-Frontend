@@ -1,9 +1,10 @@
 import { useRef, useState, useCallback } from 'react';
 import Webcam from 'react-webcam';
-import { Button, Box, Grid, Typography, CircularProgress, Snackbar, Alert } from '@mui/material';
+import { Button, Box, Grid, Typography, CircularProgress, Snackbar, Alert, IconButton } from '@mui/material';
 import {
   CameraAlt as CameraAltIcon,
-  PhotoLibrary as PhotoLibraryIcon
+  PhotoLibrary as PhotoLibraryIcon,
+  Close as CloseIcon
 } from '@mui/icons-material';
 
 interface WebcamCaptureProps {
@@ -34,6 +35,10 @@ function WebcamCapture({ studentID, courseCode, resetFields, isStudentIDValid }:
 
   const handleCloseSnackbar = () => {
     setShowAlert(false);
+  };
+
+  const discardCapturedImage = () => {
+    setCapturedImage(null); // Discard the captured image
   };
 
   const processCapturedImage = () => {
@@ -121,6 +126,17 @@ function WebcamCapture({ studentID, courseCode, resetFields, isStudentIDValid }:
                     objectFit: 'cover',
                   }}
                 />
+                <IconButton
+                  onClick={discardCapturedImage}
+                  sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  }}
+                >
+                  <CloseIcon color="error" />
+                </IconButton>
                 {processing && (
                   <Box
                     sx={{
