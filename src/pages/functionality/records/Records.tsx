@@ -43,7 +43,15 @@ function Records() {
                 columns={columns}
                 initialState={{ pagination: { paginationModel } }}
                 pageSizeOptions={[5, 10, 20, 50]}
-                sx={{ border: 0 }}
+                sx={{
+                    border: 0,
+                    '& .MuiDataGrid-columnHeaders': {
+                        backgroundColor: '#f5f5f5', // Optional background color for headers
+                    },
+                    '& .MuiDataGrid-columnHeaderTitle': {
+                        fontWeight: 'bold', // Bold header text
+                    },
+                }}
                 hideFooterSelectedRowCount={true}
             />
         </Paper>
