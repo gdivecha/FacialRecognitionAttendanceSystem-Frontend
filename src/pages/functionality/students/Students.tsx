@@ -23,8 +23,8 @@ function Students() {
   const columnMetadata: GridColDef[] = [
     { field: 'course', headerName: 'Course Code', flex: isSmallScreen ? 0.5 : 1, minWidth: 100 },
     { field: 'id', headerName: 'Student ID', flex: isSmallScreen ? 0.8 : 1, minWidth: 120 },
-    { field: 'firstName', headerName: 'First name', flex: isSmallScreen ? 1 : 1.2, minWidth: 150 },
-    { field: 'lastName', headerName: 'Last name', flex: isSmallScreen ? 1 : 1.2, minWidth: 150 },
+    { field: 'firstName', headerName: 'First Name', flex: isSmallScreen ? 1 : 1.2, minWidth: 150 },
+    { field: 'lastName', headerName: 'Last Name', flex: isSmallScreen ? 1 : 1.2, minWidth: 150 },
     { field: 'email', headerName: 'Email', flex: isSmallScreen ? 1.5 : 2, minWidth: 200 },
     {
       field: 'photos',
@@ -84,7 +84,15 @@ function Students() {
         columns={columnMetadata}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10, 20, 50]}
-        sx={{ border: 0 }}
+        sx={{
+          border: 0,
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: '#f5f5f5', // Optional background for headers
+          },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 'bold', // Bold the header text
+          },
+        }}
         hideFooterSelectedRowCount={true}
       />
     </Paper>
