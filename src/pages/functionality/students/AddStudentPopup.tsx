@@ -27,12 +27,11 @@ function AddStudentPopup(props: AddStudentPopupProps) {
   function addNewStudent() {
     if(courseCode && studentID && firstName && lastName && email) {
       props.onAddStudent({
-        course: courseCode,
-        id: studentID,
+        courseCode: courseCode,
+        studentID: studentID,
         firstName: firstName,
         lastName: lastName,
         email: email,
-        // photos?: '',
       });
       setOpen(false);
     }

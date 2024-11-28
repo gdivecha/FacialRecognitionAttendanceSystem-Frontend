@@ -10,8 +10,8 @@ import backendApiClient from '../../../axios/backendApiClient';
 const paginationModel = { page: 0, pageSize: 5 };
 
 export interface Student {
-    course: string;
-    id: string;
+    courseCode: string;
+    studentID: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -58,7 +58,31 @@ function Students() {
     },
   ];
 
-  const handleAddStudent = (newStudent: Student) => {
+  const handleAddStudent = async (newStudent: Student) => {
+    try {
+        // Retrieve the auth token from localStorage
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+            throw new Error("Auth token not found in localStorage");
+        }
+
+        // Payload to send to the backend
+        const studentData = {
+            ...newStudent,
+            professorEmail: localStorage.getItem("profEmail"),
+        };
+
+        // Make a POST request
+        const response = await backendApiClient.post("/api/student/addStudent", studentData, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Add token to Authorization header
+            },
+        });
+    } catch (error) {
+        // Handle errors
+        console.error("Error adding student:", error);
+    }
   };
 
   const handleDelete = (id: string) => {
