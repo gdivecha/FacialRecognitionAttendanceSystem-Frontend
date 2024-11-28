@@ -59,14 +59,20 @@ function Records() {
                 Track your students' attendance records and logs here
             </Typography>
             <Divider sx={{ my: 2 }} />
-            <DataGrid
-                rows={records}
-                columns={columns}
-                initialState={{ pagination: { paginationModel } }}
-                pageSizeOptions={[5, 10, 20, 50]}
-                sx={{ border: 0 }}
-                hideFooterSelectedRowCount={true}
-            />
+            {records.length === 0 ? (
+                <Typography sx={{ p: 2, textAlign: "center" }} variant="body1">
+                    No records found.
+                </Typography>
+            ) : (
+                <DataGrid
+                    rows={records}
+                    columns={columns}
+                    initialState={{ pagination: { paginationModel } }}
+                    pageSizeOptions={[5, 10, 20, 50]}
+                    sx={{ border: 0 }}
+                    hideFooterSelectedRowCount={true}
+                />
+            )}
         </Paper>
     );
 }
