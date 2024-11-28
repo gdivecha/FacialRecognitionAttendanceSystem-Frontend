@@ -29,6 +29,8 @@ function Signup() {
         email,
         password
       );
+      localStorage.setItem("authToken", "bc724d94a763cd5946ec36286d9c102d006cba4505cf38cb5f5142733ba490b3");
+      localStorage.setItem("profEmail", email);
     } catch (error) {
       console.error(error);
     }
