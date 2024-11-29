@@ -34,11 +34,39 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
   const [resetDropzone, setResetDropzone] = useState(false);
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      fetchStudentImages();
+    } else {
       setUploadPhotos(false);
       setUploadedFiles([]);
     }
   }, [open]);
+
+  const fetchStudentImages = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("Auth token not found in localStorage");
+      }
+  
+      const response = await backendApiClient.get(`/api/student/getStudentImages`, {
+        params: { studentID: props.studentID },
+        headers: {
+          Authorization: `Bearer ${token}`, // Include token in the Authorization header
+        },
+      });
+  
+      const images = response.data.map((image: any) => {
+        const blob = new Blob([Uint8Array.from(image.data.data)], { type: 'image/jpeg' });
+        const preview = URL.createObjectURL(blob);
+        return { file: blob, preview };
+      });
+  
+      setSubmittedFiles(images); // Update state with fetched images
+    } catch (error: any) {
+      console.error("Error fetching student images:", error.response?.data || error.message);
+    }
+  };
 
   const handleUpload = async () => {
     try {
@@ -71,11 +99,8 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
           },
         }
       );
-  
-      console.log("Upload successful:", response.data);
-  
-      // Update the submitted files state if the upload is successful
-      setUploadedFiles([]); // Clear the upload queue
+
+      setUploadedFiles([]);
       setUploadPhotos(false);
       setResetDropzone((prev) => !prev); // Reset the dropzone
     } catch (error: any) {
