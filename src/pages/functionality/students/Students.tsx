@@ -50,7 +50,7 @@ function Students() {
         <Button
           variant="outlined"
           color="error"
-          onClick={() => handleDelete(params.row.id)}
+          onClick={() => handleDelete(params.row.courseID, params.row.studentID)}
         >
           Delete
         </Button>
@@ -85,7 +85,33 @@ function Students() {
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (courseID: string, studentID: string) => {
+      try {
+          // Retrieve the auth token from localStorage
+          const token = localStorage.getItem("authToken");
+
+          if (!token) {
+              throw new Error("Auth token not found in localStorage");
+          }
+
+          console.log("Deleting student with courseID:", courseID, "and studentID:", studentID);
+
+          // Make a DELETE request with query parameters
+          const response = await backendApiClient.delete("/api/student/deleteStudent", {
+              headers: {
+                  Authorization: `Bearer ${token}`, // Add token to Authorization header
+              },
+              params: {
+                  courseCode: courseID,
+                  studentID: studentID,
+              },
+          });
+
+          console.log("Student deleted successfully:", response.data);
+      } catch (error: any) {
+          // Handle errors
+          console.error("Error deleting student:", error.response?.data || error.message);
+      }
   };
 
   const fetchStudents = async () => {
