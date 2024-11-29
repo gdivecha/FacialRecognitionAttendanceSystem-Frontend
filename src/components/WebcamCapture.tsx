@@ -6,6 +6,7 @@ import {
   PhotoLibrary as PhotoLibraryIcon,
   Close as CloseIcon
 } from '@mui/icons-material';
+import backendApiClient from '../axios/backendApiClient';
 
 interface WebcamCaptureProps {
   studentID: string;
@@ -19,7 +20,8 @@ function WebcamCapture({ studentID, courseCode, resetFields, isStudentIDValid }:
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false); // Processing state
-  const [isMatch, setIsMatch] = useState<boolean>();
+  const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+  const [alertMessage, setAlertMessage] = useState('');
   const [showAlert, setShowAlert] = useState(false);
 
   const capturePhoto = useCallback(() => {
@@ -41,17 +43,60 @@ function WebcamCapture({ studentID, courseCode, resetFields, isStudentIDValid }:
     setCapturedImage(null); // Discard the captured image
   };
 
-  const processCapturedImage = () => {
+  const processCapturedImage = async () => {
+    if (!capturedImage || !studentID || !courseCode || !isStudentIDValid) return;
+
     setProcessing(true); // Start processing
-    setTimeout(() => {
-      // Simulate processing delay
-      const matchResult = Math.random() > 0.5; // Simulate match result
-      setIsMatch(matchResult);
+
+    try {
+      // Convert the base64 image to a Blob
+      const byteString = atob(capturedImage.split(',')[1]);
+      const arrayBuffer = new ArrayBuffer(byteString.length);
+      const uint8Array = new Uint8Array(arrayBuffer);
+
+      for (let i = 0; i < byteString.length; i++) {
+        uint8Array[i] = byteString.charCodeAt(i);
+      }
+
+      const imageBlob = new Blob([uint8Array], { type: 'image/jpeg' });
+
+      // Create FormData to send the image and additional data
+      const formData = new FormData();
+      formData.append('studentID', studentID);
+      formData.append('courseCode', courseCode);
+      formData.append('imageFile', imageBlob);
+
+      // Make the API call
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+          throw new Error("Auth token not found in localStorage");
+      }
+      const response = await backendApiClient.post('/api/student/processCapturedPhoto', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`, // Use the retrieved token
+        },
+      });
+
+      // Handle the response
+      const { validMatch, message } = response.data;
+      setAlertSeverity(validMatch ? 'success' : 'error');
+      setAlertMessage(message);
       setShowAlert(true);
+
+      // Reset after success or failure
+      discardCapturedImage();
+      resetFields();
+    } catch (error: any) {
+      console.error('Error processing captured photo:', error.response?.data || error.message);
+
+      // Handle error case
+      setAlertSeverity('error');
+      setAlertMessage('Failed to process the photo. Please try again.');
+      setShowAlert(true);
+    } finally {
       setProcessing(false); // End processing
-      setCapturedImage(null); // Clear captured image after processing
-      resetFields(); // Reset studentID and courseCode fields
-    }, 3000); // 3 seconds processing time
+    }
   };
 
   const canProcessPhoto = capturedImage && studentID && courseCode && isStudentIDValid;
@@ -194,8 +239,8 @@ function WebcamCapture({ studentID, courseCode, resetFields, isStudentIDValid }:
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={isMatch ? 'success' : 'error'} sx={{ width: '100%' }}>
-          {isMatch ? 'Photo matched successfully!' : 'No match found for the photo!'}
+        <Alert onClose={handleCloseSnackbar} severity={alertSeverity} sx={{ width: '100%' }}>
+          {alertMessage}
         </Alert>
       </Snackbar>
     </Box>
