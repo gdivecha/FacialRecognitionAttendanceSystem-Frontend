@@ -12,6 +12,7 @@ import {
   Person as PersonIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
+import backendApiClient from '../../../axios/backendApiClient';
 
 interface UploadedFile {
   file: File | null;
@@ -39,13 +40,49 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
     }
   }, [open]);
 
-  const handleUpload = () => {
-    setSubmittedFiles((prev) => [...prev, ...uploadedFiles]);
-    setUploadedFiles([]);
-    setUploadPhotos(false);
-    setResetDropzone((prev) => !prev);
+  const handleUpload = async () => {
+    try {
+      // Retrieve the auth token from localStorage
+      const token = localStorage.getItem("authToken");
+  
+      if (!token) {
+        throw new Error("Auth token not found in localStorage");
+      }
+  
+      // Create FormData to upload files
+      const formData = new FormData();
+      formData.append("studentID", props.studentID); // Append studentID
+  
+      // Filter out null or invalid files and append them to FormData
+      uploadedFiles
+        .filter((fileObj) => fileObj.file !== null) // Ensure the file is valid
+        .forEach((fileObj) => {
+          formData.append("images", fileObj.file as Blob); // Append each valid image file
+        });
+  
+      // Make the API call
+      const response = await backendApiClient.put(
+        "/api/student/addStudentImages",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Authorization header
+            "Content-Type": "multipart/form-data", // Set content type for form-data
+          },
+        }
+      );
+  
+      console.log("Upload successful:", response.data);
+  
+      // Update the submitted files state if the upload is successful
+      setUploadedFiles([]); // Clear the upload queue
+      setUploadPhotos(false);
+      setResetDropzone((prev) => !prev); // Reset the dropzone
+    } catch (error: any) {
+      console.error("Error uploading images:", error.response?.data || error.message);
+    }
   };
-
+  
   const handleDeleteImage = (preview: string) => {
     setSubmittedFiles((prevFiles) => prevFiles.filter((file) => file.preview !== preview));
   };

@@ -32,21 +32,18 @@ function FileUpload({ onFilesChange, resetDropzone }: FileUploadProps) {
         preview: URL.createObjectURL(file),
       }));
 
-      setUploadedFiles((prevFiles) => {
-        const updatedFiles = [...prevFiles, ...newFiles];
-        onFilesChange(updatedFiles);  // Notify parent of file changes
-        return updatedFiles;
-      });
+      setUploadedFiles((prevFiles) => [...prevFiles, ...newFiles]);
     },
   });
 
+  // Defer the `onFilesChange` call to avoid state updates during render
+  useEffect(() => {
+    onFilesChange(uploadedFiles);
+  }, [uploadedFiles, onFilesChange]);
+
   const handleDelete = (fileName: string, event: MouseEvent) => {
     event.stopPropagation();
-    setUploadedFiles((prevFiles) => {
-      const updatedFiles = prevFiles.filter((f) => f.file.name !== fileName);
-      onFilesChange(updatedFiles);
-      return updatedFiles;
-    });
+    setUploadedFiles((prevFiles) => prevFiles.filter((f) => f.file.name !== fileName));
   };
 
   const handleCloseSnackbar = (event: SyntheticEvent | Event, reason?: string) => {
@@ -97,9 +94,9 @@ function FileUpload({ onFilesChange, resetDropzone }: FileUploadProps) {
                 }}
               />
               <Tooltip title={file.name} arrow>
-                <Typography 
-                  variant="body2" 
-                  noWrap 
+                <Typography
+                  variant="body2"
+                  noWrap
                   sx={{
                     textOverflow: 'ellipsis',
                     overflow: 'hidden',

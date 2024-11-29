@@ -34,9 +34,9 @@ function Students() {
       minWidth: 80,
       renderCell: (params: GridRenderCellParams) => (
         <ViewImagesPopup
-          course={params.row.course}
+          course={params.row.courseID}
           fullName={`${params.row.firstName} ${params.row.lastName}`}
-          studentID={params.row.id}
+          studentID={params.row.studentID}
           email={params.row.email}
         />
       ),
@@ -154,7 +154,7 @@ function Students() {
       </Box>
       {students.length === 0 ? (
             <Typography sx={{ p: 2, textAlign: "center" }} variant="body1">
-                No records found.
+                No students found.
             </Typography>
         ) : (
             <DataGrid
