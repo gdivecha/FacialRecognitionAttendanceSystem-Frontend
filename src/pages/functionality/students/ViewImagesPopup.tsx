@@ -19,6 +19,12 @@ interface UploadedFile {
   preview: string;
 }
 
+interface SubmittedFile {
+  file: File | null;
+  preview: string;
+  id: string;
+}
+
 interface ViewImagesPopupProps {
   course: string;
   fullName: string;
@@ -30,7 +36,7 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
   const [open, setOpen] = useState(false);
   const [uploadPhotos, setUploadPhotos] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [submittedFiles, setSubmittedFiles] = useState<UploadedFile[]>([]); 
+  const [submittedFiles, setSubmittedFiles] = useState<SubmittedFile[]>([]); 
   const [resetDropzone, setResetDropzone] = useState(false);
 
   useEffect(() => {
@@ -59,7 +65,7 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
       const images = response.data.map((image: any) => {
         const blob = new Blob([Uint8Array.from(image.data.data)], { type: 'image/jpeg' });
         const preview = URL.createObjectURL(blob);
-        return { file: blob, preview };
+        return { id: image._id, file: blob, preview };
       });
   
       setSubmittedFiles(images); // Update state with fetched images
@@ -89,7 +95,7 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
         });
   
       // Make the API call
-      const response = await backendApiClient.put(
+      await backendApiClient.put(
         "/api/student/addStudentImages",
         formData,
         {
@@ -108,8 +114,31 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
     }
   };
   
-  const handleDeleteImage = (preview: string) => {
-    setSubmittedFiles((prevFiles) => prevFiles.filter((file) => file.preview !== preview));
+  const handleDeleteImage = async (imageID: string, preview: string) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("Auth token not found in localStorage");
+      }
+  
+      // Make the DELETE API call
+      await backendApiClient.delete(`/api/student/deleteStudentImage`, {
+        params: {
+          studentID: props.studentID,
+          imageID: imageID,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`, // Include token in the Authorization header
+        },
+      });
+  
+      // Update the submittedFiles state to remove the deleted image
+      setSubmittedFiles((prevFiles) =>
+        prevFiles.filter((file) => file.preview !== preview)
+      );
+    } catch (error: any) {
+      console.error("Error deleting image:", error.response?.data || error.message);
+    }
   };
 
   return (
@@ -185,7 +214,7 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
                 Previously Uploaded Images
               </Typography>
               <Grid container spacing={2}>
-                {submittedFiles.map(({ preview }) => (
+                {submittedFiles.map(({ preview, id }) => (
                   <Grid item xs={6} sm={4} key={preview}>
                     <Card sx={{ position: 'relative', maxWidth: 120, textAlign: 'center' }}>
                       <CardMedia
@@ -198,7 +227,7 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
                         }}
                       />
                       <IconButton
-                        onClick={() => handleDeleteImage(preview)}
+                        onClick={() => handleDeleteImage(id, preview)}
                         sx={{
                           position: 'absolute',
                           top: 8,
