@@ -1,13 +1,12 @@
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Box, Button, Paper, Typography, useMediaQuery } from "@mui/material";
-import { students } from '../../../configurations/StudentsConfigs';
 import Divider from '@mui/material/Divider';
 import AddStudentPopup from './AddStudentPopup';
 import { useEffect, useState } from 'react';
 import ViewImagesPopup from './ViewImagesPopup';
 import backendApiClient from '../../../axios/backendApiClient';
 
-const paginationModel = { page: 0, pageSize: 5 };
+const paginationModel = { page: 0, pageSize: 10 };
 
 export interface Student {
     courseCode: string;
@@ -161,7 +160,7 @@ function Students() {
               rows={students}
               columns={columnMetadata}
               initialState={{ pagination: { paginationModel } }}
-              pageSizeOptions={[5, 10, 20, 50]}
+              pageSizeOptions={[10, 20, 50]}
               sx={{ border: 0 }}
               hideFooterSelectedRowCount={true}
             />

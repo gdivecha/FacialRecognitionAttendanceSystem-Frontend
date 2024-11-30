@@ -11,7 +11,7 @@ interface Record {
     timestamp: string;
 }
 
-const paginationModel = { page: 0, pageSize: 5 };
+const paginationModel = { page: 0, pageSize: 10 };
 
 function Records() {
     const [records, setRecords] = useState<Record[]>([]);
@@ -68,7 +68,7 @@ function Records() {
                     rows={records}
                     columns={columns}
                     initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10, 20, 50]}
+                    pageSizeOptions={[10, 20, 50]}
                     sx={{ border: 0 }}
                     hideFooterSelectedRowCount={true}
                 />
