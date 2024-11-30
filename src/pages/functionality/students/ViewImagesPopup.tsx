@@ -11,6 +11,7 @@ import {
   Email as EmailIcon,
   Person as PersonIcon,
   Delete as DeleteIcon,
+  Refresh as RefreshIcon, // Import Refresh Icon
 } from '@mui/icons-material';
 import backendApiClient from '../../../axios/backendApiClient';
 
@@ -76,39 +77,35 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
 
   const handleUpload = async () => {
     try {
-      // Retrieve the auth token from localStorage
       const token = localStorage.getItem("authToken");
   
       if (!token) {
         throw new Error("Auth token not found in localStorage");
       }
   
-      // Create FormData to upload files
       const formData = new FormData();
-      formData.append("studentID", props.studentID); // Append studentID
+      formData.append("studentID", props.studentID);
   
-      // Filter out null or invalid files and append them to FormData
       uploadedFiles
-        .filter((fileObj) => fileObj.file !== null) // Ensure the file is valid
+        .filter((fileObj) => fileObj.file !== null)
         .forEach((fileObj) => {
-          formData.append("images", fileObj.file as Blob); // Append each valid image file
+          formData.append("images", fileObj.file as Blob);
         });
   
-      // Make the API call
       await backendApiClient.put(
         "/api/student/addStudentImages",
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Authorization header
-            "Content-Type": "multipart/form-data", // Set content type for form-data
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
-
+      fetchStudentImages();
       setUploadedFiles([]);
       setUploadPhotos(false);
-      setResetDropzone((prev) => !prev); // Reset the dropzone
+      setResetDropzone((prev) => !prev);
     } catch (error: any) {
       console.error("Error uploading images:", error.response?.data || error.message);
     }
@@ -121,7 +118,6 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
         throw new Error("Auth token not found in localStorage");
       }
   
-      // Make the DELETE API call
       await backendApiClient.delete(`/api/student/deleteStudentImage`, {
         params: {
           studentID: props.studentID,
@@ -132,10 +128,11 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
         },
       });
   
-      // Update the submittedFiles state to remove the deleted image
+      
       setSubmittedFiles((prevFiles) =>
         prevFiles.filter((file) => file.preview !== preview)
       );
+      fetchStudentImages();
     } catch (error: any) {
       console.error("Error deleting image:", error.response?.data || error.message);
     }
@@ -151,7 +148,24 @@ function ViewImagesPopup(props: ViewImagesPopupProps) {
         aria-describedby="modal-modal-description"
         sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
-        <Paper sx={{ p: 2, width: '50%', maxWidth: '500px' }}>
+        <Paper sx={{ p: 2, width: '50%', maxWidth: '500px', position: 'relative' }}>
+          {/* Refresh Button Positioned at Top Right */}
+          <IconButton
+            color="primary"
+            onClick={fetchStudentImages}
+            sx={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              border: '1px solid #1876D2',
+              borderRadius: '5px',
+              padding: '5px',
+              backgroundColor: '#fff',
+            }}
+          >
+            <RefreshIcon />
+          </IconButton>
+
           <Typography variant="h5" fontWeight={1000} gutterBottom>
             Student Image Management 
           </Typography>

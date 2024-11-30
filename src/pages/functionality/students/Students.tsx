@@ -1,6 +1,6 @@
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import { Box, Button, Paper, Typography, useMediaQuery } from "@mui/material";
-import Divider from '@mui/material/Divider';
+import { Box, Button, IconButton, Paper, Typography, useMediaQuery, Divider } from "@mui/material";
+import RefreshIcon from '@mui/icons-material/Refresh'; // Import refresh icon
 import AddStudentPopup from './AddStudentPopup';
 import { useEffect, useState } from 'react';
 import ViewImagesPopup from './ViewImagesPopup';
@@ -59,58 +59,40 @@ function Students() {
 
   const handleAddStudent = async (newStudent: Student) => {
     try {
-        // Retrieve the auth token from localStorage
         const token = localStorage.getItem("authToken");
-
         if (!token) {
             throw new Error("Auth token not found in localStorage");
         }
 
-        // Payload to send to the backend
         const studentData = {
             ...newStudent,
             professorEmail: localStorage.getItem("profEmail"),
         };
 
-        // Make a POST request
-        const response = await backendApiClient.post("/api/student/addStudent", studentData, {
-            headers: {
-                Authorization: `Bearer ${token}`, // Add token to Authorization header
-            },
+        await backendApiClient.post("/api/student/addStudent", studentData, {
+            headers: { Authorization: `Bearer ${token}` },
         });
+        fetchStudents();
     } catch (error) {
-        // Handle errors
         console.error("Error adding student:", error);
     }
   };
 
   const handleDelete = async (courseID: string, studentID: string) => {
-      try {
-          // Retrieve the auth token from localStorage
-          const token = localStorage.getItem("authToken");
+    try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            throw new Error("Auth token not found in localStorage");
+        }
 
-          if (!token) {
-              throw new Error("Auth token not found in localStorage");
-          }
-
-          console.log("Deleting student with courseID:", courseID, "and studentID:", studentID);
-
-          // Make a DELETE request with query parameters
-          const response = await backendApiClient.delete("/api/student/deleteStudent", {
-              headers: {
-                  Authorization: `Bearer ${token}`, // Add token to Authorization header
-              },
-              params: {
-                  courseCode: courseID,
-                  studentID: studentID,
-              },
-          });
-
-          console.log("Student deleted successfully:", response.data);
-      } catch (error: any) {
-          // Handle errors
-          console.error("Error deleting student:", error.response?.data || error.message);
-      }
+        await backendApiClient.delete("/api/student/deleteStudent", {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { courseCode: courseID, studentID: studentID },
+        });
+        fetchStudents();
+    } catch (error: any) {
+        console.error("Error deleting student:", error.response?.data || error.message);
+    }
   };
 
   const fetchStudents = async () => {
@@ -120,9 +102,7 @@ function Students() {
             throw new Error("Auth token not found in localStorage");
         }
         const response = await backendApiClient.get("/api/student/getAllStudents", {
-            headers: {
-                Authorization: `Bearer ${token}`, // Use the retrieved token
-            },
+            headers: { Authorization: `Bearer ${token}` },
             params: { professorEmail: localStorage.getItem("profEmail") },
         });
         const recordsWithId = response.data.map((record: any, index: number) => ({
@@ -148,8 +128,21 @@ function Students() {
         Manage all your students and their information here
       </Typography>
       <Divider />
-      <Box display="flex" justifyContent="flex-start" mt='1.3rem' mb='1rem'>
-        <AddStudentPopup onAddStudent={handleAddStudent} />
+      <Box display="flex" justifyContent="flex-start" alignItems="center" mt="1.3rem" mb="1rem">
+        <IconButton
+          color="primary"
+          onClick={fetchStudents}
+          sx={{
+            border: '1px solid #1876D2',
+            borderRadius: '5px',
+            padding: '5px',
+          }}
+        >
+          <RefreshIcon />
+        </IconButton>
+        <Box ml={2}>
+          <AddStudentPopup onAddStudent={handleAddStudent} />
+        </Box>
       </Box>
       {students.length === 0 ? (
             <Typography sx={{ p: 2, textAlign: "center" }} variant="body1">
